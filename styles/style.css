@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+*{
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #f9f9f9;
+}
+
+.main-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 90vh;
+}
+
+.box {
+    background: #fdfdfd;
+    display: flex;
+    flex-direction: column;
+    padding: 25px 25px;
+    border-radius: 20px;
+    box-shadow: 0 0 128px 0 rgba(0, 0, 0, 1),
+                0 32px 64px -48px rgba(0, 0, 0, 0, 5);
+}
+
+.form-box {
+    width: 450px;
+    margin: 0px 10px;
+}
+
+.form-box header {
+    display: flex;
+    justify-content: center;
+    font-size: 25px;
+    font-weight: 600;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e6e6e6;
+    margin-bottom: 10px;
+}
+
+.form-box form .field-input {
+    display: flex;
+    margin-bottom: 10px;
+    flex-direction: column;
+}
+
+.form-box form .field-input input {
+    height: 40px;
+    width: 100%;
+    font-size: 16px;
+    padding: 0 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.btn {
+    height: 35px;
+    background: rgba(76, 68, 182, 0.808);
+    border-radius: 5px;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all .3s;
+    margin-top: 10px;
+    padding: 0px 10px;
+}
+
+.btn:hover {
+    opacity: 0.82;
+}
+
+.submit {
+    width: 100%;
+}
+
+.link {
+    margin-bottom: 15px;
+}
+
+.right-links a {
+     text-decoration: none;
+}
+
+/* HOME */
+
+.nav {
+    width: 100%;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    line-height: 60px;
+    z-index: 100;
+}
+
+.logo  {
+    width: 50%;
+    font-size: 18px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+}
+
+.right-links {
+    width: 50%;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    column-gap: 20px;
+}
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.main-box {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+}
+
+.main-box .top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.bottom {
+    width: 100%;
+    margin-top: 20px;
+}
+
+#myChart {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 10px;
+}
+
+@media only screen and (max-width: 840px){
+    .main-box .top {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .top .box {
+        margin: 10px 10px;
+    }
+    .bottom {
+        margin-top: 0;
+    }
+}
+
+.message {
+    text-align: center;
+    background: #f9eded;
+    padding: 15px 0px;
+    border: 1px solid  #699053;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    color: red;
+}
+
+/* GALLERY */
+
+.gallery-main-container {
+    width: 100%;
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    row-gap: 20px;
+}
+
+.gallery-tbls {
+    width: 80%;
+    height: 60vh;
+    border: 1px solid black;
+}
+
+.dropdowns {
+    width: 100%;
+    height:  50px;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    column-gap: 5px;
+}
+
+.dropdown-items {
+    margin: 0 15px 0 15px;
+}
+
+.btn-action svg {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.span-action {
+    display: flex;
+    column-gap: 10px;
+}
+
+/* table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+} */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  th, td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+
+  .pagination {
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-left: 405px;
+  }
+
+  .pagination-btn {
+    display: flex;
+    flex-direction: row;
+  }
