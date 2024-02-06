@@ -1,7 +1,4 @@
-<?php
-    require_once("../php/config.php");
-?>
-
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,21 +10,50 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
+        
     $(document).ready(function () {
     // Function to update the dropdown options
     function updateDropdown(dropdown, data) {
         dropdown.empty(); // Clear existing options
         dropdown.append('<option value="" selected disabled>None</option>');
         $.each(data, function (index, option) {
-            dropdown.append('<option value="' + option.code + '">' + option.name + '</option>');
+        dropdown.append('<option value="' + option.code + '">' + option.name + '</option>');
         });
-    }
+        }
 
     // Province selection
     $("#province").on('change', function () {
         let selectedProvince = $(this).val();
         if (selectedProvince) { // Only fetch data if a province is selected
+
+            // Set an item in local storage
+            if (!localStorage.getItem('selectedProvince')) {
+            // If username does not exist, set it
+                localStorage.setItem('selectedProvince', selectedProvince);
+            } else {
+                // If username already exists, update it
+                localStorage.setItem('selectedProvince', selectedProvince);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: 'filterUtil.php',
+                data: { 
+                    selectedProvince: localStorage.getItem('selectedProvince'),
+                    selectedMunicipality: localStorage.getItem('selectedMunicipality'),
+                    selectedBarangay: localStorage.getItem('selectedBarangay'),
+                },
+                success: function (response) {
+                    console.log(response);
+                    localStorage.removeItem('selectedProvince');
+                },
+                error: function () {
+                    console.error('Encountered error');
+                }
+            });
+
             $.ajax({
                 type: 'POST',
                 url: 'locationUtil.php',
@@ -56,6 +82,28 @@
     // Municipality selection
     $("#municipality").on('change', function () {
         let selectedMunicipality = $(this).val();
+
+            if (!localStorage.getItem('selectedMunicipality')) {
+                localStorage.setItem('selectedMunicipality', selectedMunicipality);
+            } else {
+                localStorage.setItem('selectedMunicipality', selectedMunicipality);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: 'filterUtil.php',
+                data: { 
+                    selectedMunicipality: localStorage.getItem('selectedMunicipality'),
+                },
+                success: function (response) {
+                    console.log(response);
+                    localStorage.removeItem('selectedMunicipality');
+                },
+                error: function () {
+                    console.error('Encountered error');
+                }
+            });
+
         axios.get(`https://psgc.gitlab.io/api/municipalities/${selectedMunicipality}/barangays/`)
             .then((res) => {
                 // Update the barangays dropdown
@@ -64,6 +112,31 @@
             .catch((err) => {
                 console.log(err);
                 console.error('Error fetching barangays');
+            });
+    });
+
+    $("#barangay").on('change', function () {
+        let selectedBarangay = $(this).val();
+
+            if (!localStorage.getItem('selectedBarangay')) {
+                localStorage.setItem('selectedBarangay', selectedBarangay);
+            } else {
+                localStorage.setItem('selectedBarangay', selectedBarangay);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: 'filterUtil.php',
+                data: { 
+                    selectedBarangay: localStorage.getItem('selectedBarangay'),
+                },
+                success: function (response) {
+                    console.log(response);
+                    localStorage.removeItem('selectedBarangay');
+                },
+                error: function () {
+                    console.error('Encountered error');
+                }
             });
     });
 });
@@ -109,8 +182,8 @@
     </script>
 
 <?php
-
 require_once("../php/config.php");
+
 
 $target_dir = "uploads/";
 $uploadOk = 1;
@@ -281,30 +354,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
         </div>
         <div class="gallery-tbls">
             <?php
-
             require_once("../php/config.php");
             
             // Set the time zone to Manila
             date_default_timezone_set('Asia/Manila');
 
-            // Path to the directory where files are uploaded
-            $uploadDirectory = "uploads/";
-
             // Display uploaded files in a table
             echo "<table border='1'>";
             echo "<tr><th>File Name</th><th>Date Uploaded</th><th>Action</th></tr>";
 
-            $result = $conn->query("SELECT * FROM lib_upload");
+
+            $provinceCode = isset($_SESSION['selectedProvinceSession']) ? $_SESSION['selectedProvinceSession'] : '';
+            $municipalityCode = isset($_SESSION['selectedMunicipalitySession']) ? $_SESSION['selectedMunicipalitySession'] : '';
+            $barangayCode = isset($_SESSION['selectedBarangaySession']) ? $_SESSION['selectedBarangaySession'] : '';
+
+            $filterCondition = $provinceCode . " AND " . $municipalityCode . " AND " . $barangayCode;
+            echo $filterCondition;
+
+            if ($provinceCode != '') {
+                $queryString = "SELECT * FROM lib_upload WHERE province_code = '$provinceCode'";
+                if ($municipalityCode != '') {
+                    $queryString = "SELECT * FROM lib_upload WHERE province_code = '$provinceCode' AND municipality_code = '$municipalityCode'";
+                    if ($barangayCode != '') {
+                        $queryString = "SELECT * FROM lib_upload WHERE province_code = '$provinceCode' AND municipality_code = '$municipalityCode' AND '$barangayCode'";
+                    }
+                }
+            } else if ($provinceCode == '')  {
+                $queryString = "SELECT * FROM lib_upload WHERE province_code = ''";
+            } else {
+                $queryString = "SELECT * FROM lib_upload WHERE province_code = ''";
+            }
+
+            session_destroy();
+
+            // $result = $conn->query("SELECT * FROM lib_upload");
+            $result = $conn->query($queryString);
             while ($row = $result->fetch_assoc()) {
+            $selectedProvince = $row['province_code'];
+            $selectedMunicipality = $row['municipality_code'];
+            $selectedBarangay = $row['barangay_code'];
             $fileName = $row['file_name'];
             $dateUploaded = $row['date_uploaded'];
 
+            // http://localhost/login-register/components/uploads/037700000/037701000/037701001/037701001_01.pdf
+            $location = "http://localhost/login-register/components/uploads/0$selectedProvince/0$selectedMunicipality/0$selectedBarangay/$fileName";
+            
             echo "<tr>";
             echo "<td>$fileName</td>";
             echo "<td>$dateUploaded</td>";
             echo '<td>
                     <span class="span-action">
-                    <a class="btn-action" href="uploads/' . $fileName .'" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32"><path fill="currentColor" d="M16 8.286C8.454 8.286 2.5 16 2.5 16s5.954 7.715 13.5 7.715c5.77 0 13.5-7.715 13.5-7.715S21.77 8.286 16 8.286m0 12.52c-2.65 0-4.807-2.156-4.807-4.806S13.35 11.193 16 11.193S20.807 13.35 20.807 16S18.65 20.807 16 20.807zm0-7.612a2.806 2.806 0 1 0 0 5.611a2.806 2.806 0 0 0 0-5.611"/></svg></a> 
+                    <a class="btn-action" href="'. $location .'" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32"><path fill="currentColor" d="M16 8.286C8.454 8.286 2.5 16 2.5 16s5.954 7.715 13.5 7.715c5.77 0 13.5-7.715 13.5-7.715S21.77 8.286 16 8.286m0 12.52c-2.65 0-4.807-2.156-4.807-4.806S13.35 11.193 16 11.193S20.807 13.35 20.807 16S18.65 20.807 16 20.807zm0-7.612a2.806 2.806 0 1 0 0 5.611a2.806 2.806 0 0 0 0-5.611"/></svg></a> 
                     <a class="btn-action"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m12 17.192l3.308-3.307l-.708-.708l-2.1 2.1v-4.7h-1v4.7l-2.1-2.1l-.708.708zM4 20V6.915L6.415 4h11.15L20 6.954V20zM5.38 6.808H18.6L17.096 5H6.885z"/></svg></a>
                     <span>
                     </td>';
@@ -316,16 +416,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
             ?>
         </div>
 
-        <!-- <div class="pagination">
+        <div class="pagination">
             <span class="pagination-btn">
                 <button>Previous</button>
                 <p>Page 1 out of 2</p>
                 <button>Next</button>
             </span>
-            <span class="pagination-total">
-                Total Files: 404
-            </span>
-        </div> -->
+        </div>
 
     </div>
 </body>

@@ -247,11 +247,14 @@ table {
     width: 50%;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    margin-left: 405px;
+    justify-content: center;
   }
 
   .pagination-btn {
     display: flex;
-    flex-direction: row;
+    column-gap: 10px;
+  }
+
+  .pagination button {
+    cursor: pointer;
   }

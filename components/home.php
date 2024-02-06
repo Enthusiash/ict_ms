@@ -1,13 +1,42 @@
 <?php
-    
     session_start();
-
     require_once("../php/config.php");
     if (!isset($_SESSION['valid'])){
         header("Location: login.php");
         exit(); // Ensure script stops executing after redirect
     }
-    
+
+    // Retrieve data from the database grouped by province
+    $data = array();
+    $result = $conn->query("SELECT province_code, COUNT(*) AS count 
+                            FROM lib_upload 
+                            GROUP BY province_code");
+
+    while ($row = $result->fetch_assoc()) {
+        $provinceCode = $row['province_code'];
+        // Fetch province name based on the code
+        $provinceName = fetchProvinceName($provinceCode, $conn);
+        $count = $row['count'];
+        $data[$provinceName] = $count;
+    }
+
+    // Function to fetch province name based on province code
+    function fetchProvinceName($provinceCode, $conn) {
+        // You should adjust this query according to your table structure
+        $query = "SELECT province_code FROM lib_upload WHERE province_code = '$provinceCode'";
+        $result = $conn->query($query);
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['province_code'];
+        } else {
+            return "Unknown"; // Default name if province code not found
+        }
+    }
+
+    // Convert data into JavaScript-friendly format
+    $xValues = array_keys($data);
+    $yValues = array_values($data);
+    $barColors = ["red", "green","blue","orange","brown", "pink", "violet"];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,21 +56,15 @@
             <p>Department of Social Welfare and Development</p>
         </div>
         <div class="right-links">
-        
-            <?php
-                
-            ?>
             <a href="../components/home.php"><p>Dashboard</p></a>
             <a href="../components/gallery.php"><p>Gallery</p></a>
             <!-- JavaScript onclick function to trigger confirmation prompt -->
             <a href="#" onclick="confirmLogout()"><button class="btn">Logout</button></a>
-
         </div>
     </div>
     <main>  
-            <canvas id="myChart"></canvas>
-            <script>
-
+        <canvas id="myChart"></canvas>
+        <script>
             // Function to display a toast notification for logout confirmation
             function confirmLogout() {
                 Swal.fire({
@@ -80,28 +103,28 @@
                 });
             }
 
-            var xValues = ["Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"];
-            var yValues = [35, 43, 44, 24, 45, 25, 30];
-            var barColors = ["red", "green","blue","orange","brown", "pink", "violet"];
+            var xValues = <?php echo json_encode($xValues); ?>;
+            var yValues = <?php echo json_encode($yValues); ?>;
+            var barColors = <?php echo json_encode($barColors); ?>;
 
             new Chart("myChart", {
-            type: "bar",
-            data: {
-                labels: xValues,
-                datasets: [{
-                backgroundColor: barColors,                  
-                data: yValues
-                }]
-            },
-            options: {
-                legend: {display: false},
-                title: {
-                display: true,
-                text: "Household Assessment Form 2024"
+                type: "bar",
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        backgroundColor: barColors,                  
+                        data: yValues
+                    }]
+                },
+                options: {
+                    legend: {display: false},
+                    title: {
+                        display: true,
+                        text: "Household Assessment Form 2024"
+                    }
                 }
-            }
             });
-            </script>
+        </script>
     </main>
 </body>
 </html>
