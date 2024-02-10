@@ -1,10 +1,8 @@
 <?php
+    
     session_start();
+
     require_once("../php/config.php");
-    if (!isset($_SESSION['valid'])){
-        header("Location: login.php");
-        exit(); // Ensure script stops executing after redirect
-    }
 
     // Retrieve data from the database grouped by province
     $data = array();
@@ -23,11 +21,11 @@
     // Function to fetch province name based on province code
     function fetchProvinceName($provinceCode, $conn) {
         // You should adjust this query according to your table structure
-        $query = "SELECT province_code FROM lib_upload WHERE province_code = '$provinceCode'";
+        $query = "SELECT p.prov_name FROM `lib_upload` u JOIN lib_provinces p ON u.province_code = p.prov_code WHERE u.province_code = '$provinceCode'";
         $result = $conn->query($query);
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
-            return $row['province_code'];
+            return $row['prov_name'];
         } else {
             return "Unknown"; // Default name if province code not found
         }
@@ -37,6 +35,7 @@
     $xValues = array_keys($data);
     $yValues = array_values($data);
     $barColors = ["red", "green","blue","orange","brown", "pink", "violet"];
+    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,17 +55,20 @@
             <p>Department of Social Welfare and Development</p>
         </div>
         <div class="right-links">
+        
             <a href="../components/home.php"><p>Dashboard</p></a>
             <a href="../components/gallery.php"><p>Gallery</p></a>
-            <!-- JavaScript onclick function to trigger confirmation prompt -->
+            <a href="../components/support.php"><p>Support</p></a>
             <a href="#" onclick="confirmLogout()"><button class="btn">Logout</button></a>
+
         </div>
     </div>
     <main>  
-        <canvas id="myChart"></canvas>
-        <script>
-            // Function to display a toast notification for logout confirmation
-            function confirmLogout() {
+            <canvas id="myChart"></canvas>
+            <script>
+
+            // Function to display toast notification for logout confirmation
+            function confirmLogout(){
                 Swal.fire({
                     title: 'Logout',
                     text: "Are you sure you want to logout?",
@@ -76,30 +78,31 @@
                     cancelButtonColor: '#d33',
                     position: "top-end",
                     confirmButtonText: 'Yes, logout',
-                    toast: true, // Set to true to display as a toast
+                    toast: true,
                     customClass: {
-                        popup: 'logout-toast', // Apply custom CSS class for resizing
+                        popup: 'logout-toast',
                     },
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Show Toast notification after confirmation
+                        // Show toast notication after confirmation
                         showLogoutToast();
-                        // Redirect to logout page after a short delay
-                        setTimeout(function() {
+                        // Redirect to logout page after the delay
+                        setTimeout(function(){
                             window.location.href = "../php/logout.php";
+                            localStorage.removeItem('user_id');
                         }, 1500);
-                    }
+                        }
                 });
             }
 
             // Function to display the logout toast notification
             function showLogoutToast() {
                 Swal.fire({
-                    title: 'Logging out',
+                    title: 'Logging out!',
                     icon: 'success',
                     position: 'top-end',
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: '1500'
                 });
             }
 
@@ -108,23 +111,23 @@
             var barColors = <?php echo json_encode($barColors); ?>;
 
             new Chart("myChart", {
-                type: "bar",
-                data: {
-                    labels: xValues,
-                    datasets: [{
-                        backgroundColor: barColors,                  
-                        data: yValues
-                    }]
-                },
-                options: {
-                    legend: {display: false},
-                    title: {
-                        display: true,
-                        text: "Household Assessment Form 2024"
-                    }
+            type: "bar",
+            data: {
+                labels: xValues,
+                datasets: [{
+                backgroundColor: barColors,                  
+                data: yValues
+                }]
+            },
+            options: {
+                legend: {display: false},
+                title: {
+                display: true,
+                text: "Household Assessment Form 2024"
                 }
+            }
             });
-        </script>
+            </script>
     </main>
 </body>
 </html>

@@ -62,6 +62,7 @@
                         $_SESSION['username'] = $users['Username'];
                         $_SESSION['fullname'] = $users['Fullname'];
                         $_SESSION['id'] = $users['Id'];
+                        echo  "<script>localStorage.setItem('user_id','".$_SESSION['id']."');</script>";
                         echo '<script>';
                         echo 'Toast.fire({
                             title: "Login Successfully!",
